@@ -1,0 +1,2 @@
+# Ceph Manager Daemon
+
