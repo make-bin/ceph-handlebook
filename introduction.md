@@ -1,10 +1,10 @@
 ---
-description: ceph学习笔记
+description: install ceph with ceph-deploy
 ---
 
-# Introduction
+# Installing Ceph
 
+## Prelight
 
-
-
+## 
 
