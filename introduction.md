@@ -1,10 +1,10 @@
 ---
-description: 部署ceph集群
+description: install ceph with ceph-deploy
 ---
 
-# Ceph部署
+# Installing Ceph
 
-## 预检
+## Prelight
 
 ## 
 
