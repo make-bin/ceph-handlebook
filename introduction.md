@@ -1,10 +1,10 @@
 ---
-description: ceph学习笔记
+description: 部署ceph集群
 ---
 
-# Introduction
+# Ceph部署
 
+## 预检
 
-
-
+## 
 
