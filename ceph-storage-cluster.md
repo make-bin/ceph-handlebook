@@ -1,4 +1,4 @@
-# Ceph存储集群
+# Ceph 存储集群
 
 ## 配置
 
@@ -81,13 +81,165 @@ Ceph进程在启动时要做的第一件事就是解析通过命令行，环境�
 
 这些选项包括：
 
+global
 
+**Description**   global下设置会影响Ceph存储集群中的所有守护程序和客户端
 
+**Example**  log\_file = /var/log/ceph/$cluster-$type.$id.log
 
+mon
 
+**Description**   mon下的设置会影响Ceph存储群集中的所有ceph-mon守护程序，并覆盖global中的相同设置
 
+**Example**  mon\_cluster\_log\_to\_syslog = true
 
+mgr
 
+**Description**  mgr部分中的设置会影响Ceph Storage Cluster中的所有ceph-mgr守护进程，并覆盖global中的相同设置
 
+**Example** mgr\_stats\_period = 10
 
+osd
+
+**Description**  osd下的设置会影响Ceph Storage Cluster中的所有ceph-osd守护进程，并覆盖global中的相同设置。
+
+**Example**  osd\_op\_queue = wpq
+
+mds
+
+**Description**  mds部分中的设置会影响Ceph存储集群中的所有ceph-mds守护进程，并覆盖global中的相同设置
+
+**Example**  mds\_cache\_memory\_limit = 10G
+
+client
+
+**Description**  client下的设置会影响所有Ceph客户端（例如已安装的Ceph文件系统，已安装的Ceph块设备等）以及Rados Gateway（RGW）守护程序
+
+**Example**  objecter\_inflight\_ops = 512
+
+部分还可以指定单个守护程序或客户端名称。例如，mon.foo，osd.123和client.smith都是有效的节名称   
+
+在同一源（即，在同一配置文件中）的global，mon和mon.foo中都指定了同一选项，则将使用mon.foo值
+
+如果在同一部分中指定了相同配置选项的多个值，则以最后一个值为准
+
+请注意，本地配置文件中的值始终优先于监视器配置数据库中的值，而不管它们出现在哪个部分中
+
+## 元变量
+
+元变量极大地简化了Ceph存储集群的配置。在配置值中设置了元变量后，Ceph会在使用配置值时将元变量扩展为具体值。 Ceph元变量类似于Bash shell中的变量扩展
+
+Ceph支持以下元变量：
+
+$cluster
+
+**Description**  扩展为Ceph存储群集名称。在同一硬件上运行多个Ceph存储集群时很有用
+
+**Example**  /etc/ceph/$cluster.keyring
+
+**Default**  ceph
+
+$type
+
+**Description**   扩展为守护程序或进程类型（例如mds，osd或mon）
+
+**Example**   /var/lib/ceph/$type
+
+$id
+
+**Description**  扩展为守护程序或客户端标识符。对于osd.0，它将为0；否则为0。对于mds.a，它将是a
+
+**Example** /var/lib/ceph/$type/$cluster-$id
+
+$host
+
+Description  扩展为运行进程的主机名。
+
+$name
+
+**Description**  扩展为$ type.$ id
+
+**Example**  /var/run/ceph/$cluster-$name.asok
+
+$pid
+
+**Description**  扩展为守护进程pid。
+
+**Example** /var/run/ceph/$cluster-$name-$pid.asok
+
+## 配置文件
+
+启动时，Ceph进程在以下位置搜索配置文件：
+
+1. $CEPH\_CONF \(i.e._,_ the path following the $CEPH\_CONF environment variable\)
+2. -c path/path \(i.e., the -c command line argument\)
+3. /etc/ceph/$cluster.conf
+4. ~/.ceph/$cluster.conf
+5. ./$cluster.conf \(i.e., in the current working directory\)
+6. On FreeBSD systems only, /usr/local/etc/ceph/$cluster.conf
+
+其中$cluster是群集的名称（默认ceph）
+
+Ceph配置文件使用ini样式的语法。您可以在注释之前添加井号（＃）或分号（;）。例如：
+
+```text
+# <--A number (#) sign precedes a comment.
+; A comment may be anything.
+# Comments always follow a semi-colon (;) or a pound (#) on each line.
+# The end of the line terminates a comment.
+# We recommend that you provide comments in your configuration file(s).
+```
+
+### 配置文件选项名
+
+配置文件分为几部分。每个部分都必须以有效的配置部分名称（请参见上面的配置部分）开头，并用方括号括起来。例如
+
+```text
+[global]
+debug ms = 0
+
+[osd]
+debug ms = 1
+
+[osd.1]
+debug ms = 10
+
+[osd.2]
+debug ms = 10
+```
+
+### 配置文件选项值
+
+配置选项的值是一个字符串。如果太长而无法容纳在一行中，则可以在行尾添加一个反斜杠（\）作为行继续标记，因此该选项的值将是当前行中=之后的字符串与该字符串的组合在下一行：
+
+```text
+[global]
+foo = long long ago\
+long ago
+```
+
+在上面的示例中，"foo"的值为"long long age long ago"
+
+通常，选项值以换行符或注释结尾，例如
+
+```text
+[global]
+obscure one = difficult to explain # I will try harder in next release
+simpler one = nothing to explain
+```
+
+在上面的示例中，“obscure one”的值将“difficult to explain”；而“simpler one ”的价值就是“nothing to explain”
+
+如果选项值包含空格，并且我们想使其明确，则可以使用单引号或双引号将其引起来，例如
+
+```text
+line = "to be, or not to be"
+```
+
+某些字符不允许直接出现在选项值中。它们是=，＃、;和\[。如果需要，我们需要逃避它们，例如
+
+```text
+[global]
+secret = "i love \# and \["
+```
 
