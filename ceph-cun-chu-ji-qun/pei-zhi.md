@@ -337,5 +337,5 @@ $ ceph config help log_file -f json-pretty
 ceph config set osd.123 debug_ms 20
 ```
 
-Note that if the same option is also customized in a local configuration file, the monitor setting will be ignored \(it has a lower priority than the local config file\).
+请注意，如果在本地配置文件中也自定义了相同的选项，则将忽略监视器设置（其优先级低于本地配置文件）
 
