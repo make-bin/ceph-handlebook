@@ -339,5 +339,43 @@ ceph config set osd.123 debug_ms 20
 
 请注意，如果在本地配置文件中也自定义了相同的选项，则将忽略监视器设置（其优先级低于本地配置文件）
 
+### 查看运行时配置
 
+
+
+You can see the current options set for a running daemon with the `ceph config show` command. For example,:
+
+```text
+ceph config show osd.0
+```
+
+will show you the \(non-default\) options for that daemon. You can also look at a specific option with:
+
+```text
+ceph config show osd.0 debug_osd
+```
+
+or view all options \(even those with default values\) with:
+
+```text
+ceph config show-with-defaults osd.0
+```
+
+You can also observe settings for a running daemon by connecting to it from the local host via the admin socket. For example,:
+
+```text
+ceph daemon osd.0 config show
+```
+
+will dump all current settings,:
+
+```text
+ceph daemon osd.0 config diff
+```
+
+will show only non-default settings \(as well as where the value came from: a config file, the monitor, an override, etc.\), and:
+
+```text
+ceph daemon osd.0 config get debug_osd
+```
 
