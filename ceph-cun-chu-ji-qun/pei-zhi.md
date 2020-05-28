@@ -75,9 +75,9 @@ Ceph进程在启动时要做的第一件事就是解析通过命令行，环境�
 
 可以通过--no-mon-config选项来传递任何进程，以跳过从集群监视器检索配置的步骤。在完全通过配置文件管理配置或监视器群集当配置
 
-### 前处于关闭状态但需要完成一些维护活动的情况下，这很有用
+前处于关闭状态但需要完成一些维护活动的情况下，这很有用
 
-## 配置选项
+### 配置选项
 
 任何给定的进程或守护程序的每个配置选项都有一个值。但是，选项的值可能在不同的守护程序类型之间变化，甚至是同一类型的守护程序也可能不同。存储在监视器配置数据库或本地配置文件中的Ceph选项分为几部分，以指示它们适用于哪些守护程序或客户端。
 
@@ -127,7 +127,7 @@ client
 
 请注意，本地配置文件中的值始终优先于监视器配置数据库中的值，而不管它们出现在哪个部分中
 
-## 元变量
+### 元变量
 
 元变量极大地简化了Ceph存储集群的配置。在配置值中设置了元变量后，Ceph会在使用配置值时将元变量扩展为具体值。 Ceph元变量类似于Bash shell中的变量扩展
 
@@ -169,7 +169,7 @@ $pid
 
 **Example** /var/run/ceph/$cluster-$name-$pid.asok
 
-## 配置文件
+### 配置文件
 
 启动时，Ceph进程在以下位置搜索配置文件：
 
@@ -192,7 +192,7 @@ Ceph配置文件使用ini样式的语法。您可以在注释之前添加井号�
 # We recommend that you provide comments in your configuration file(s).
 ```
 
-### 配置文件选项名
+#### 配置文件选项名
 
 配置文件分为几部分。每个部分都必须以有效的配置部分名称（请参见上面的配置部分）开头，并用方括号括起来。例如
 
@@ -210,7 +210,7 @@ debug ms = 10
 debug ms = 10
 ```
 
-### 配置文件选项值
+#### 配置文件选项值
 
 配置选项的值是一个字符串。如果太长而无法容纳在一行中，则可以在行尾添加一个反斜杠（\）作为行继续标记，因此该选项的值将是当前行中=之后的字符串与该字符串的组合在下一行：
 
@@ -275,4 +275,67 @@ secret = "i love \# and \["
 * ceph config assimilate-conf -i  &lt;input file&gt; -o &lt;output file&gt; 将从输入文件中提取配置文件，并将所有有效选项移至监视器的配置数据库中。监视器无法识别，无效或无法控制的任何设置都将在输出文件中存储的简短配置文件中返回。此命令对于从旧版配置文件过渡到基于集中式监视器的配置很有
 
 ### 帮助
+
+您可以通过以下方式获得有关特定选项的帮助：
+
+```text
+ceph config help <option>
+```
+
+请注意，这将使用编译到正在运行的监视器中的配置架构。如果您有混合版本的集群（例如，在升级过程中），则可能还想从特定的运行守护程序中查询选项模式：
+
+```text
+ceph daemon <name> config help [option]
+```
+
+例如：
+
+```text
+$ ceph config help log_file
+log_file - path to log file
+  (std::string, basic)
+  Default (non-daemon):
+  Default (daemon): /var/log/ceph/$cluster-$name.log
+  Can update at runtime: false
+  See also: [log_to_stderr,err_to_stderr,log_to_syslog,err_to_syslog]
+```
+
+or
+
+```text
+$ ceph config help log_file -f json-pretty
+{
+    "name": "log_file",
+    "type": "std::string",
+    "level": "basic",
+    "desc": "path to log file",
+    "long_desc": "",
+    "default": "",
+    "daemon_default": "/var/log/ceph/$cluster-$name.log",
+    "tags": [],
+    "services": [],
+    "see_also": [
+        "log_to_stderr",
+        "err_to_stderr",
+        "log_to_syslog",
+        "err_to_syslog"
+    ],
+    "enum_values": [],
+    "min": "",
+    "max": "",
+    "can_update_at_runtime": false
+}
+```
+
+### 运行时修改
+
+在大多数情况下，Ceph允许您在运行时更改守护程序的配置。此功能对于增加/减少日志记录输出，启用/禁用调试设置，甚至用于运行时优化非常有用。
+
+一般来说，可以通过ceph config set命令以常规方式更新配置选项。例如，在特定的OSD上启用调试日志级别，请执行以下操作：
+
+```text
+ceph config set osd.123 debug_ms 20
+```
+
+Note that if the same option is also customized in a local configuration file, the monitor setting will be ignored \(it has a lower priority than the local config file\).
 
