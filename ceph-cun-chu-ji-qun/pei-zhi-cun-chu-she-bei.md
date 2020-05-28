@@ -1,4 +1,4 @@
-# 配置-存储设备
+# 存储设备
 
 OSD可以通过两种方式管理它们存储的数据。从Luminous 12.2.z版本开始，新的默认（推荐）后端是BlueStore。在Luminous之前，默认（也是唯一的选项）是FileStore。
 
